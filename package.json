@@ -1,0 +1,29 @@
+{
+  "name": "electron-vue",
+  "version": "0.0.0",
+  "description": "An Electron & Vue.js quick start boilerplate with vue-cli and webpack 5 support",
+  "main": "meta.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deeprado/electron-vue-webpack5.git"
+  },
+  "keywords": [
+    "electron",
+    "vue",
+    "boilerplate",
+    "hot",
+    "reload",
+    "router",
+    "vuex",
+    "resource"
+  ],
+  "author": "Sun Wei <siversonw@126.com> (https://github.com/deeprado)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/deeprado/electron-vue-webpack5issues"
+  },
+  "homepage": "https://github.com/deeprado/electron-vue-webpack5#readme",
+  "devDependencies": {
+    "suppose": "^0.6.1"
+  }
+}

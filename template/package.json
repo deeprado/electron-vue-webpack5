@@ -1,0 +1,339 @@
+{
+  "name": "{{ name }}",
+{{#if_eq builder 'packager'}}
+  "productName": "{{ name }}",
+{{/if_eq}}
+  "version": "{{ appver }}",
+  "author": "{{ author }}",
+  "description": "{{ description }}",
+  "license": "MIT",
+  "keywords": [
+    "electron",
+    "vue"
+  ],
+  "main": "./dist/electron/main.js",
+  "scripts": {
+    {{#if_eq builder 'packager'}}
+    "build": "node .electron-vue/build.js",
+    "build:darwin": "cross-env BUILD_TARGET=darwin node .electron-vue/build.js",
+    "build:linux": "cross-env BUILD_TARGET=linux node .electron-vue/build.js",
+    "build:mas": "cross-env BUILD_TARGET=mas node .electron-vue/build.js",
+    "build:win32": "cross-env BUILD_TARGET=win32 node .electron-vue/build.js",
+    {{else}}
+    "build": "node .electron-vue/build.js && electron-builder",
+    "build:dir": "node .electron-vue/build.js && electron-builder --dir",
+    {{/if_eq}}
+    "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
+    "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
+    "dev": "node .electron-vue/dev-runner.js",
+    {{#if e2e}}
+    "e2e": "npm run pack && mocha test/e2e",
+    {{/if}}
+    {{#if eslint}}
+    "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter src{{#testing unit e2e}} test{{/testing}}",
+    "lint:fix": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter --fix src{{#testing unit e2e}} test{{/testing}}",
+    {{/if}}
+    "pack": "npm run pack:main && npm run pack:renderer",
+    "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
+    "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
+    {{#testing unit e2e}}
+    "test": "{{#unit}}npm run unit{{/unit}}{{#unit}}{{#e2e}} && {{/e2e}}{{/unit}}{{#e2e}}npm run e2e{{/e2e}}",
+    {{/testing}}
+    {{#if unit}}
+    "unit": "karma start test/unit/karma.conf.js",
+    {{/if}}
+    "postinstall": "{{#if eslint}}npm run lint:fix{{/if}}"
+  },
+  {{#if_eq builder 'builder'}}
+  "build": {
+    "productName": "my-project",
+    "appId": "com.example.yourapp",
+    "directories": {
+      "output": "build/output"
+    },
+    "files": [
+      "dist/electron/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icons/icon.ico"
+    },
+    "mac": {
+      "category": "public.app-category.business",
+      "target": [
+        "pkg",
+        "dmg"
+      ],
+      "icon": "build/icons/icon.icns"
+    },
+    "linux": {
+      "icon": "build/icons",
+      "target": [
+        "AppImage",
+        "rpm",
+        "deb",
+        "snap",
+        "tar.gz"
+      ],
+      "category": "Development",
+      "executableName": "{{ name }}",
+      "synopsis": "${productName}",
+      "description": "${productName}",
+      "desktop": {
+        "Name": "${productName}",
+        "Icon": "build/icons/icon.png",
+        "Type": "Application",
+        "Categories": "Office",
+        "Encoding": "UTF-8",
+        "Comment": "${productName}",
+        "Terminal": false,
+        "MimeType": "x-scheme-handler/ark;"
+      }
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "runAfterFinish": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "menuCategory": false,
+      "shortcutName": "${productName}",
+      "deleteAppDataOnUninstall": false
+    },
+    "dmg": {
+      "icon": "build/icons/icon.icns",
+      "iconSize": 80,
+      "iconTextSize": 12,
+      "title": "${productName} ${version}",
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications",
+          "name": "应用程序"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ],
+      "format": "UDZO",
+      "internetEnabled": false,
+      "window": {
+        "x": 400,
+        "y": 200,
+        "width": 540,
+        "height": 380
+      },
+      "sign": false
+    },
+    "mas": {
+      "entitlements": "build/mac/entitlements.mas.plist",
+      "entitlementsInherit": "build/mac/entitlements.mas.inherit.plist"
+    },
+    "pkg": {
+      "installLocation": "/Applications",
+      "allowAnywhere": true,
+      "allowCurrentUserHome": true,
+      "allowRootDirectory": true,
+      "overwriteAction": "upgrade",
+      "license": "build/license/license.txt"
+    },
+    "deb": {
+      "depends": [
+        "gconf2",
+        "gconf-service",
+        "libnotify4",
+        "libappindicator1",
+        "libxtst6",
+        "libnss3",
+        "libudev-dev"
+      ],
+      "packageCategory": "public.app-category.business",
+      "priority": "important"
+    },
+    "rpm": {
+      "depends": [
+        "libsecret-devel"
+      ],
+      "compression": "xz",
+      "packageCategory": "public.app-category.business",
+      "fpm": [
+        "--before-install=resources/rpm/rpm-preinstall.sh",
+        "--after-upgrade=resources/rpm/rpm-postinstall.sh"
+      ]
+    },
+    "appImage": {},
+    "snap": {
+      "confinement": "strict",
+      "environment": {},
+      "summary": "${productName}",
+      "grade": "stable",
+      "assumes": [],
+      "buildPackages": [
+        "gconf2",
+        "gconf-service",
+        "libnotify4",
+        "libappindicator1",
+        "libxtst6",
+        "libnss3",
+        "libudev-dev"
+      ],
+      "stagePackages": [
+        "libasound2",
+        "libgconf2-4",
+        "libnotify4",
+        "libnspr4",
+        "libnss3",
+        "libpcre3",
+        "libpulse0",
+        "libxss1",
+        "libxtst6"
+      ],
+      "hooks": "resources/snap/snap-hooks",
+      "plugs": [
+        "default"
+      ],
+      "useTemplateApp": true
+    }
+  },
+  {{/if_eq}}
+  "dependencies": {
+    "axios": "^0.21.1",
+    "vue": "^2.6.14",{{deps plugins}}
+    "vue-electron": "^1.0.6",
+    "vue-router": "^3.5.2",
+    "vuex": "^3.6.2",
+    "vuex-electron": "^1.0.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.14.3",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
+    "@babel/plugin-proposal-decorators": "^7.12.1",
+    "@babel/plugin-transform-runtime": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "ajv": "^8.5.0",
+    "autoprefixer": "^10.2.5",
+    "babel-loader": "^8.2.2",
+    "babel-plugin-syntax-jsx": "^6.18.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-plugin-transform-vue-jsx": "^3.7.0",
+    "babili-webpack-plugin": "^0.1.2",
+    "cfonts": "^2.9.2",
+    "chalk": "^4.1.1",
+    "copy-webpack-plugin": "^9.0.0",
+    "cross-env": "^7.0.3",
+    "css-loader": "^5.2.6",
+    "del": "^6.0.0",
+    "devtron": "^1.4.0",
+    "electron": "^13.1.8",
+    {{#if_eq builder 'packager'}}
+    "electron-builder": "^22.10.5",
+    "electron-rebuild": "^1.8.1",
+    {{else}}
+    "electron-builder": "^22.10.5",
+    {{/if_eq}}
+    "electron-debug": "^3.2.0",
+    "electron-devtools-installer": "^3.2.0",
+    "electron-installer-snap": "^5.1.0",
+    "electron-installer-squirrel-windows": "^1.3.0",
+    "electron-notarize": "^1.0.0",
+    "electron-packager": "^15.2.0",
+    "electron-squirrel-startup": "^1.0.0",
+    "electron-updater": "^4.3.9",
+    "electron-windows-store": "^2.1.0",
+    {{#eslint}}
+    "eslint": "^7.27.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-friendly-formatter": "^4.0.1",
+    "eslint-loader": "^4.0.2",
+    "eslint-plugin-html": "^6.1.2",
+    "eslint-plugin-import": "^2.23.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "eslint-plugin-standard": "^5.0.0",
+    "eslint-plugin-vue": "^7.9.0",
+    {{#if_eq eslintConfig 'standard'}}
+    {{/if_eq}}
+    {{#if_eq eslintConfig 'airbnb'}}
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-import-resolver-webpack": "^0.10.0",
+    "eslint-plugin-import": "^2.12.0",
+    {{/if_eq}}
+    {{/eslint}}
+    "expose-loader": "^3.0.0",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "file-loader": "^6.2.0",
+    "friendly-errors-webpack-plugin": "^1.7.0",
+    "html-webpack-plugin": "^5.3.1",
+    {{#if unit}}
+    "inject-loader": "^4.0.1",
+    "install": "^0.13.0",
+    "karma": "^6.3.2",
+    "karma-chai": "^0.1.0",
+    "karma-coverage": "^2.0.3",
+    "karma-electron": "^7.0.0",
+    "karma-mocha": "^2.0.1",
+    "karma-sourcemap-loader": "^0.3.8",
+    "karma-spec-reporter": "^0.0.32",
+    "karma-webpack": "^5.0.0",
+    {{/if}}
+    "mini-css-extract-plugin": "1.6.0",
+    "multispinner": "^0.2.1",
+    "node-loader": "^2.0.0",
+    "node-notifier": "^10.0.0",
+    {{#if usesass}}
+    "node-sass": "^6.0.0",
+    "sass-loader": "^11.1.1",
+    {{/if}}
+    "optimize-css-assets-webpack-plugin": "^6.0.0",
+    "ora": "^5.4.0",
+    "portfinder": "^1.0.28",
+    "postcss-import": "^14.0.2",
+    "postcss-loader": "^5.3.0",
+    "postcss-preset-env": "^6.7.0",
+    "postcss-url": "^10.1.3",
+    "process": "^0.11.10",
+    {{#if e2e}}
+    "require-dir": "^1.2.0",
+    "spectron": "^14.0.0",
+    {{/if}}
+    {{#testing unit e2e}}
+    "babel-plugin-istanbul": "^4.1.6",
+    "chai": "^4.3.4",
+    "mocha": "^8.4.0",
+    {{/testing}}
+    "rimraf": "^3.0.2",
+    "semver": "^7.3.5",
+    "shelljs": "^0.8.4",
+    "style-loader": "^2.0.0",
+    "svg-sprite-loader": "^6.0.6",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "url-loader": "^4.1.1",
+    "vue-eslint-parser": "^7.3.0",
+    "vue-html-loader": "^1.2.4",
+    "vue-loader": "^15.9.7",
+    "vue-style-loader": "^4.1.3",
+    "vue-template-compiler": "^2.6.12",
+    "webpack": "^5.37.1",
+    "webpack-cli": "^4.7.0",
+    "webpack-dev-server": "^3.11.2",
+    "webpack-hot-middleware": "^2.25.0",
+    "webpack-merge": "^5.7.3"
+  },
+  "engines": {
+    "node": ">= 14.0.0",
+    "npm": ">= 3.0.0"
+  },
+  "peerDependencies": {
+    "postcss": "^8.0.0"
+  },
+  "__npminstall_done": false
+}
