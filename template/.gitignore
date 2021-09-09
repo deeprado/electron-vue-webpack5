@@ -3,6 +3,7 @@ dist/electron/*
 dist/web/*
 build/*
 !build/icons
+!build/license
 {{#if unit}}
 coverage
 {{/if}}
