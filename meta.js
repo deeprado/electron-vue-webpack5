@@ -71,6 +71,12 @@ module.exports = {
       message: 'Project description',
       default: 'An electron-vue project'
     },
+    homepage: {
+      type: 'string',
+      required: true,
+      message: 'Project homepage',
+      default: 'https://github.com'
+    },
     usesass: {
         type: 'confirm',
         message: 'Use Sass / Scss?',

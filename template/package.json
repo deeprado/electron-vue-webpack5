@@ -5,6 +5,7 @@
 {{/if_eq}}
   "version": "{{ appver }}",
   "author": "{{ author }}",
+  "homepage": "{{ homepage }}",
   "description": "{{ description }}",
   "license": "MIT",
   "keywords": [
@@ -21,6 +22,7 @@
     "build:win32": "cross-env BUILD_TARGET=win32 node .electron-vue/build.js",
     {{else}}
     "build": "node .electron-vue/build.js && electron-builder",
+    "build:win": "node .electron-vue/build.js && electron-builder --x64 --ia32",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     {{/if_eq}}
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
@@ -46,7 +48,8 @@
   },
   {{#if_eq builder 'builder'}}
   "build": {
-    "productName": "my-project",
+    "productName": "{{name}}",
+    "artifactName": "{{name}}-${version}.${ext}",
     "appId": "com.example.yourapp",
     "directories": {
       "output": "build/output"
@@ -71,10 +74,7 @@
     "linux": {
       "icon": "build/icons",
       "target": [
-        "AppImage",
         "rpm",
-        "deb",
-        "snap",
         "tar.gz"
       ],
       "category": "Development",
@@ -83,7 +83,7 @@
       "description": "${productName}",
       "desktop": {
         "Name": "${productName}",
-        "Icon": "build/icons/icon.png",
+        "Icon": "build/icons/256x256.png",
         "Type": "Application",
         "Categories": "Office",
         "Encoding": "UTF-8",
@@ -133,10 +133,6 @@
       },
       "sign": false
     },
-    "mas": {
-      "entitlements": "build/mac/entitlements.mas.plist",
-      "entitlementsInherit": "build/mac/entitlements.mas.inherit.plist"
-    },
     "pkg": {
       "installLocation": "/Applications",
       "allowAnywhere": true,
@@ -163,11 +159,7 @@
         "libsecret-devel"
       ],
       "compression": "xz",
-      "packageCategory": "public.app-category.business",
-      "fpm": [
-        "--before-install=resources/rpm/rpm-preinstall.sh",
-        "--after-upgrade=resources/rpm/rpm-postinstall.sh"
-      ]
+      "packageCategory": "public.app-category.business"
     },
     "appImage": {},
     "snap": {
@@ -196,7 +188,6 @@
         "libxss1",
         "libxtst6"
       ],
-      "hooks": "resources/snap/snap-hooks",
       "plugs": [
         "default"
       ],
@@ -216,6 +207,7 @@
     "ajv": "^8.5.0",
     "autoprefixer": "^10.2.5",
     "babel-loader": "^8.2.2",
+    "babel-plugin-istanbul": "^4.1.6",
     "babel-plugin-syntax-jsx": "^6.18.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-plugin-transform-vue-jsx": "^3.7.0",
