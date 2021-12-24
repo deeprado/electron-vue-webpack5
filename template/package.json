@@ -59,15 +59,26 @@
     ],
     "win": {
       "target": [
-        "nsis"
+        {
+          "target": "nsis",
+          "arch": "x64"
+        }, {
+          "target": "nsis",
+          "arch": "ia32"
+        }
       ],
       "icon": "build/icons/icon.ico"
     },
     "mac": {
       "category": "public.app-category.business",
       "target": [
-        "pkg",
-        "dmg"
+        {
+          "target": "dmg",
+          "arch": "universal"
+        }, {
+          "target": "pkg",
+          "arch": "x64"
+        }
       ],
       "icon": "build/icons/icon.icns"
     },
